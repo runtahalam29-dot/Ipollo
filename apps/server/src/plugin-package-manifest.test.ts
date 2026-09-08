@@ -1,0 +1,749 @@
+import { describe, expect, test } from "bun:test";
+import { runInNewContext } from "node:vm";
+
+import { bundledPluginPackageIds } from "./plugin-package-catalog.js";
+import type { PluginPackageManifest } from "./plugin-package-manifest.js";
+
+const HAN_TEXT_RE = /\p{Script=Han}/u;
+
+function expectEnglishText(base: unknown, english: string | undefined, path: string): void {
+  if (typeof base !== "string" || !HAN_TEXT_RE.test(base)) return;
+  expect(english, `${path} requires an English translation`).toBeDefined();
+  expect(HAN_TEXT_RE.test(english ?? ""), `${path} English translation must not contain Han text`).toBe(false);
+}
+
+function expectCompleteEnglishLocalization(manifest: PluginPackageManifest): void {
+  const english = manifest.localization?.translations.en;
+  expect(manifest.localization?.defaultLocale).toBe("zh");
+  expect(english).toBeDefined();
+  if (!english) return;
+
+  expectEnglishText(manifest.name, english.name, "name");
+  expectEnglishText(manifest.description, english.description, "description");
+  expectEnglishText(manifest.category, english.category, "category");
+  expectEnglishText(manifest.composer?.prompt, english.composer?.prompt, "composer.prompt");
+  expectEnglishText(manifest.setup?.instructions, english.setup?.instructions, "setup.instructions");
+  expectEnglishText(manifest.setup?.primaryCta, english.setup?.primaryCta, "setup.primaryCta");
+  expectEnglishText(manifest.setup?.secondaryCta, english.setup?.secondaryCta, "setup.secondaryCta");
+
+  manifest.resources.forEach((resource) => {
+    const translation = english.resources?.[resource.id];
+    expectEnglishText(resource.label, translation?.label, `resources.${resource.id}.label`);
+    expectEnglishText(resource.description, translation?.description, `resources.${resource.id}.description`);
+  });
+  manifest.permissions?.forEach((permission) => {
+    expectEnglishText(permission.reason, english.permissions?.[permission.id]?.reason, `permissions.${permission.id}.reason`);
+  });
+  manifest.authorization?.methods.forEach((method) => {
+    const translation = english.authorizationMethods?.[method.id];
+    expectEnglishText(method.label, translation?.label, `authorizationMethods.${method.id}.label`);
+    expectEnglishText(method.description, translation?.description, `authorizationMethods.${method.id}.description`);
+    if (method.kind !== "secret-form") return;
+    method.fields.forEach((field) => {
+      const fieldTranslation = translation?.fields?.[field.id];
+      expectEnglishText(field.label, fieldTranslation?.label, `authorizationMethods.${method.id}.fields.${field.id}.label`);
+      expectEnglishText(field.description, fieldTranslation?.description, `authorizationMethods.${method.id}.fields.${field.id}.description`);
+      expectEnglishText(field.placeholder, fieldTranslation?.placeholder, `authorizationMethods.${method.id}.fields.${field.id}.placeholder`);
+    });
+  });
+}
+
+const packageManifest = {
+  schemaVersion: 2,
+  id: "acme-research",
+  name: "Acme Research",
+  description: "Research with Acme's independent service.",
+  source: { format: "ipollowork-extension-manifest", origin: "local", trusted: false },
+  package: {
+    version: "1.2.3",
+    publisher: { id: "acme", name: "Acme" },
+    compatibility: { ipollowork: ">=0.17.0" },
+    engines: ["opencode"],
+    updateId: "acme/research",
+  },
+  engineBindings: [{
+    engine: "opencode",
+    compatibility: ">=1.18.0",
+    capabilities: [{ id: "acme-runtime", kind: "plugin", path: "engines/opencode/plugins/acme-research.ts", required: true }],
+  }],
+  permissions: [
+    { id: "network", reason: "Connect to the Acme research API." },
+    { id: "workspace-read", reason: "Read selected workspace files." },
+  ],
+  authorization: {
+    required: true,
+    methods: [{
+      id: "api-key",
+      connectionId: "acme-research",
+      kind: "secret-form",
+      label: "API key",
+      fields: [{ id: "apiKey", label: "API key", secret: true, required: true }],
+    }],
+  },
+  resources: [
+    { type: "skill", id: "acme-search", path: "skills/acme-search/SKILL.md", required: true },
+    { type: "mcp", id: "acme-mcp", path: "mcp/acme.json", required: false },
+  ],
+};
+
+const minimalManifest = {
+  schemaVersion: 2,
+  id: "minimal-plugin",
+  name: "Minimal Plugin",
+  description: "A minimal plugin package.",
+  source: { format: "ipollowork-extension-manifest", origin: "local", trusted: false },
+  resources: [],
+};
+
+describe("plugin package manifest", () => {
+  test("accepts localized display metadata and rejects invalid locale references", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const localized = {
+      ...packageManifest,
+      localization: {
+        defaultLocale: "zh",
+        translations: {
+          en: {
+            description: "Independent Acme research workflows.",
+            resources: { "acme-search": { label: "Acme Search" } },
+            permissions: { network: { reason: "Connect to Acme." } },
+            authorizationMethods: {
+              "api-key": {
+                label: "API key",
+                fields: { apiKey: { label: "API key" } },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(validatePluginPackageManifest(localized).success).toBe(true);
+
+    const invalid = validatePluginPackageManifest({
+      ...localized,
+      localization: {
+        defaultLocale: "english",
+        translations: {
+          en: {
+            description: " ",
+            resources: { missing: { label: "Missing" } },
+            permissions: { missing: { reason: "Missing" } },
+            authorizationMethods: {
+              missing: { label: "Missing" },
+              "api-key": { fields: { missing: { label: "Missing" } } },
+            },
+          },
+        },
+      },
+    });
+
+    expect(invalid.success).toBe(false);
+    if (invalid.success) throw new Error("Expected invalid localization metadata to be rejected");
+    expect(invalid.issues.map((issue) => issue.path)).toEqual(expect.arrayContaining([
+      "localization.defaultLocale",
+      "localization.translations.en.description",
+      "localization.translations.en.resources.missing",
+      "localization.translations.en.permissions.missing",
+      "localization.translations.en.authorizationMethods.missing",
+      "localization.translations.en.authorizationMethods.api-key.fields.missing",
+    ]));
+  });
+
+  test("ships complete English display metadata for every bundled package", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    for (const pluginId of bundledPluginPackageIds) {
+      const value = await Bun.file(new URL(`../../../examples/plugin-packages/${pluginId}/ipollowork.plugin.json`, import.meta.url)).json();
+      const result = validatePluginPackageManifest(value);
+      expect(result.success, pluginId).toBe(true);
+      if (!result.success) throw new Error(`${pluginId}: ${JSON.stringify(result.issues)}`);
+      expectCompleteEnglishLocalization(result.manifest);
+    }
+  });
+
+  test("accepts the complete Figma example package", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const manifest = await Bun.file(new URL("../../../examples/plugin-packages/figma/ipollowork.plugin.json", import.meta.url)).json();
+
+    const result = validatePluginPackageManifest(manifest);
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error(JSON.stringify(result.issues));
+    expect(result.manifest.id).toBe("figma");
+    expect(result.manifest.resources.filter((resource) => resource.type === "skill")).toHaveLength(12);
+    expect(result.manifest.resources.some((resource) => resource.type === "mcp" && resource.mcpServerName === "figma")).toBe(true);
+  });
+
+  test("accepts every bundled MCP service package with its managed skills", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const packages = [
+      { id: "notion", skills: 4, oauth: true },
+      { id: "linear", skills: 4, oauth: true },
+      { id: "sentry", skills: 4, oauth: true },
+      { id: "stripe", skills: 4, oauth: true },
+      { id: "context7", skills: 2, oauth: false },
+    ];
+
+    for (const expected of packages) {
+      const manifest = await Bun.file(new URL(`../../../examples/plugin-packages/${expected.id}/ipollowork.plugin.json`, import.meta.url)).json();
+      const result = validatePluginPackageManifest(manifest);
+      expect(result.success).toBe(true);
+      if (!result.success) throw new Error(`${expected.id}: ${JSON.stringify(result.issues)}`);
+      expect(result.manifest.id).toBe(expected.id);
+      expect(result.manifest.resources.filter((resource) => resource.type === "skill")).toHaveLength(expected.skills);
+      expect(result.manifest.resources.find((resource) => resource.type === "mcp")).toMatchObject({
+        mcpServerName: expected.id,
+        oauth: expected.oauth,
+      });
+    }
+  });
+
+  test("accepts the bundled GitHub service with four independently managed skills", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const manifest = await Bun.file(new URL("../../../examples/plugin-packages/github/ipollowork.plugin.json", import.meta.url)).json();
+
+    const result = validatePluginPackageManifest(manifest);
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error(JSON.stringify(result.issues));
+    expect(result.manifest.id).toBe("github");
+    expect(result.manifest.resources.filter((resource) => resource.type === "skill")).toHaveLength(4);
+    const service = result.manifest.resources.find((resource) => resource.type === "local-service");
+    expect(service?.actions).toHaveLength(11);
+    expect(service?.actions?.filter((action) => action.effect === "write").map((action) => action.id)).toEqual([
+      "create-pull-request",
+      "post-comment",
+      "resolve-review-thread",
+    ]);
+    expect(result.manifest.authorization?.methods.map((method) => method.id)).toEqual(["github-token"]);
+  });
+
+  test("accepts the bundled WeChat Official Account service with seven independently managed skills", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const manifest = await Bun.file(new URL("../../../examples/plugin-packages/wechat-official/ipollowork.plugin.json", import.meta.url)).json();
+
+    const result = validatePluginPackageManifest(manifest);
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error(JSON.stringify(result.issues));
+    expect(result.manifest.id).toBe("wechat-official");
+    expect(result.manifest.resources.filter((resource) => resource.type === "skill")).toHaveLength(7);
+    const service = result.manifest.resources.find((resource) => resource.type === "local-service");
+    expect(service?.actions).toHaveLength(18);
+    expect(service?.actions?.find((action) => action.id === "reply-comment")).toMatchObject({ effect: "write" });
+    expect(service?.actions?.find((action) => action.id === "delete-comment")).toMatchObject({ effect: "destructive" });
+    expect(result.manifest.authorization?.methods).toMatchObject([{
+      id: "wechat-official-account",
+      kind: "secret-form",
+      fields: [{ id: "appId", secret: false }, { id: "appSecret", secret: true }],
+    }]);
+  });
+
+  test("accepts the official Design and Video workspace packages with managed skills", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const designManifest = await Bun.file(new URL("../../../examples/plugin-packages/design-agent/ipollowork.plugin.json", import.meta.url)).json();
+    const videoManifest = await Bun.file(new URL("../../../examples/plugin-packages/video-agent/ipollowork.plugin.json", import.meta.url)).json();
+
+    const design = validatePluginPackageManifest(designManifest);
+    const video = validatePluginPackageManifest(videoManifest);
+
+    expect(design.success).toBe(true);
+    if (!design.success) throw new Error(JSON.stringify(design.issues));
+    expect(video.success).toBe(true);
+    if (!video.success) throw new Error(JSON.stringify(video.issues));
+    expect(design.manifest.name).toBe("iPollo Design");
+    expect(video.manifest.name).toBe("iPollo Video");
+    expect(design.manifest.resources.map((resource) => resource.type)).toEqual(["skill", "skill"]);
+    expect(video.manifest.resources).toHaveLength(11);
+    expect(video.manifest.resources.every((resource) => resource.type === "skill")).toBe(true);
+    expect(video.manifest.relatedSkills).toBeUndefined();
+    expect(video.manifest.resources.map((resource) => resource.id)).toEqual(expect.arrayContaining([
+      "hyperframes",
+      "hyperframes-animation",
+      "hyperframes-cli",
+      "hyperframes-core",
+      "hyperframes-creative",
+      "hyperframes-keyframes",
+      "hyperframes-registry",
+      "media-use",
+      "product-launch-video",
+    ]));
+    expect(design.manifest.defaultEnabled).toBe(true);
+    expect(video.manifest.defaultEnabled).toBe(true);
+    expect(design.manifest.contributions).toBeUndefined();
+    expect(video.manifest.contributions).toBeUndefined();
+    expect(design.manifest.source).toMatchObject({ origin: "builtin", trusted: true });
+    expect(video.manifest.source).toMatchObject({ origin: "builtin", trusted: true });
+
+    const legacyNativePanelManifest = {
+      ...designManifest,
+      contributions: [{
+        type: "session-side-panel",
+        ref: "ipollowork.design.panel",
+        label: "Design",
+        location: "session-right-pane",
+      }],
+    };
+    expect(validatePluginPackageManifest(legacyNativePanelManifest).success).toBe(true);
+
+    const untrustedNativePanel = validatePluginPackageManifest({
+      ...legacyNativePanelManifest,
+      id: "third-party-design",
+      source: { ...designManifest.source, origin: "local", trusted: false },
+    });
+    expect(untrustedNativePanel.success).toBe(false);
+    if (untrustedNativePanel.success) throw new Error("Expected native session panel trust diagnostics");
+    expect(untrustedNativePanel.issues).toContainEqual({
+      path: "contributions.0.type",
+      message: "native session panels are restricted to trusted built-in packages",
+    });
+  });
+
+  test("accepts Image Studio as a self-contained workspace app with independently managed skills", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const manifest = await Bun.file(new URL("../../../examples/plugin-packages/image-studio/ipollowork.plugin.json", import.meta.url)).json();
+    const workspaceUi = await Bun.file(new URL("../../../examples/plugin-packages/image-studio/ui/image-studio.html", import.meta.url)).text();
+    const editingSkill = await Bun.file(new URL("../../../examples/plugin-packages/image-studio/skills/image-editing/SKILL.md", import.meta.url)).text();
+
+    const result = validatePluginPackageManifest(manifest);
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error(JSON.stringify(result.issues));
+    expect(result.manifest.defaultEnabled).toBe(true);
+    expect(result.manifest.contributions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "workspace-app", ref: "studio" }),
+    ]));
+    expect(result.manifest.resources.filter((resource) => resource.type === "ui")).toHaveLength(1);
+    expect(result.manifest.resources.filter((resource) => resource.type === "local-service")).toHaveLength(1);
+    expect(result.manifest.resources.filter((resource) => resource.type === "skill").map((resource) => resource.id)).toEqual([
+      "image-generation",
+      "image-editing",
+    ]);
+    expect(result.manifest.package?.version).toBe("0.1.29");
+    expect(workspaceUi).toContain('data-tool="smart"');
+    expect(workspaceUi).toContain('data-tool="ellipse"');
+    expect(workspaceUi).toContain('data-operation="subtract"');
+    expect(workspaceUi).toContain('id="redo"');
+    expect(workspaceUi.match(/data-lucide=/g)).toHaveLength(20);
+    expect(workspaceUi).toContain('data-lucide="wand-sparkles"');
+    expect(workspaceUi).toContain('data-lucide="square-dashed"');
+    expect(workspaceUi).toContain('data-lucide="circle-dashed"');
+    expect(workspaceUi).toContain('data-lucide="zoom-out"');
+    expect(workspaceUi).toContain('data-lucide="zoom-in"');
+    expect(workspaceUi).toContain('data-lucide="maximize"');
+    expect(workspaceUi).toContain('data-lucide="download"');
+    expect(workspaceUi).not.toContain('data-ai-mode="inpaint"');
+    expect(workspaceUi).toContain('data-ai-mode="expand"');
+    expect(workspaceUi).toContain('data-ai-mode="erase"');
+    expect(workspaceUi).not.toContain('id="compareVersion"');
+    expect(workspaceUi).not.toContain('id="versionHistory"');
+    expect(workspaceUi).not.toContain('id="parameters"');
+    expect(workspaceUi).toContain('id="expandOptions"');
+    expect(workspaceUi).toContain("prepareExpandedEdit");
+    expect(workspaceUi).toContain('id="askAi"');
+    expect(workspaceUi).toContain('type: "ipollowork:image-studio:ask-ai"');
+    expect(workspaceUi).not.toContain('class="toolbar-row toolbar-row-secondary"');
+    expect(workspaceUi).toContain('id="zoomControls"');
+    expect(workspaceUi).not.toContain('id="zoomMenu"');
+    expect(workspaceUi).toContain('id="selectionDisplayCanvas"');
+    expect(workspaceUi).toContain('id="selectionClear"');
+    expect(workspaceUi).toContain('id="selectionAskAi"');
+    expect(workspaceUi).toContain('id="selectionErase"');
+    expect(workspaceUi).toContain('id="expandRun"');
+    expect(workspaceUi).toContain('data-zoom="fit"');
+    expect(workspaceUi).toContain('id="instantTooltip"');
+    expect(workspaceUi).toContain('data-i18n="replaceImage"');
+    expect(workspaceUi).not.toContain('data-i18n="properties"');
+    expect(workspaceUi).toContain('id="documentTitle"');
+    expect(workspaceUi).toContain('id="downloadImage"');
+    expect(workspaceUi).toContain('id="emptyBack"');
+    expect(workspaceUi).toContain(".empty-orb { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 8px; background: #fff; }");
+    expect(workspaceUi).toContain(".empty-orb img { display: block; width: 32px; height: 32px; object-fit: contain; }");
+    expect(workspaceUi).toContain('src="data:image/png;base64,');
+    expect(workspaceUi).toContain('mode: "start"');
+    expect(workspaceUi).not.toContain('id="sourceMeta"');
+    expect(workspaceUi).toContain("normalizedSelectionBounds");
+    expect(workspaceUi).toContain("approximateSelection");
+    expect(workspaceUi).toContain("captureSelection");
+    expect(workspaceUi).toContain("exactSelection");
+    expect(editingSkill).toContain("both an image preview and a reusable file card");
+  });
+
+  test("Image Studio lists the full catalog, selects a connected model, and marks authorization actions", async () => {
+    const ui = await Bun.file(new URL("../../../examples/plugin-packages/image-studio/ui/image-studio.html", import.meta.url)).text();
+    const apply = ui.match(/    function applyProviderModels\(provider\) \{[\s\S]*?\n    \}/)?.[0];
+    expect(apply).toBeDefined();
+    const state: {
+      model: string;
+      models: Array<{ id: string; available: boolean; configured: boolean }>;
+      providerReady: boolean;
+    } = { model: "api", models: [], providerReady: false };
+    const context = {
+      state,
+      normalizeModelParameters: () => {},
+      syncProviderState: () => {
+        const selected = state.models.find((entry) => entry.id === state.model);
+        state.providerReady = Boolean(selected?.available && selected.configured);
+      },
+    };
+    runInNewContext(`${apply}; globalThis.update = applyProviderModels`, context);
+    const catalog = [
+      { id: "api", available: true, configured: false },
+      { id: "browser", available: true, configured: true },
+      { id: "ark", available: true, configured: true },
+      { id: "midjourney", available: false, configured: true },
+      null,
+    ];
+    runInNewContext(`update(${JSON.stringify({ models: catalog, defaultModel: "api" })})`, context);
+    expect(state.models).toEqual(catalog.filter((entry): entry is NonNullable<typeof entry> => entry !== null));
+    expect(state.model).toBe("browser");
+    expect(state.providerReady).toBe(true);
+    state.model = "ark";
+    runInNewContext(`update(${JSON.stringify({ models: catalog, defaultModel: "browser" })})`, context);
+    expect(state.model).toBe("ark");
+    runInNewContext(`update({models: [], defaultModel: "api"})`, context);
+    expect(state.models).toEqual([]);
+    expect(state.model).toBe("");
+    expect(state.providerReady).toBe(false);
+    expect(ui).toContain("options: selectOptions.model");
+    expect(ui).toContain('action: "open-authorizations"');
+    expect(ui).toContain("disabled: !model.available");
+  });
+
+  test("Image Studio derives controls from the model catalog, resets incompatible drafts and rejects invalid updates", async () => {
+    const { openAiImageGenerationStatus } = await import("./extensions/openai-image-generation.js");
+    const { models } = await openAiImageGenerationStatus({ read: async () => ({}) });
+    const ui = await Bun.file(new URL("../../../examples/plugin-packages/image-studio/ui/image-studio.html", import.meta.url)).text();
+    const functions = ["selectedModel", "normalizeModelParameters", "updateParameters", "actionArguments", "publishContext"].map((name) => {
+      const source = ui.match(new RegExp(`    function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n    \\}`))?.[0];
+      if (!source) throw new Error(`Missing ${name}`);
+      return source;
+    }).join("\n");
+    const context = { models };
+    runInNewContext(`
+      const state = { models, model: models[0].id, mode: "generate", locale: "zh", prompt: "Draft", style: "minimal", camera: "auto", lighting: "auto", size: "1536x1024", quality: "high" };
+      const selectionBounds = () => state.bounds ?? null, actionBlockedMessage = () => "", tr = key => key, renderProvider = () => {}, setMode = mode => { state.mode = mode; };
+      const INSPECTOR_CONTEXT_KEY = "inspector";
+      let contextTimer, selectionRevision = 0;
+      const clearTimeout = () => {}, setTimeout = fn => { fn(); return 1; };
+      const request = (_method, args) => { globalThis.inspector = args.structuredContent.inspector; return Promise.resolve(); };
+      ${functions}
+      globalThis.state = state;
+      globalThis.update = args => { updateParameters(args); publishContext(); return actionArguments(); };
+      publishContext();
+    `, context);
+    const inspect = (expression: string) => runInNewContext(expression, context);
+    expect(inspect('inspector.fields.find(f => f.id === "size").options.map(o => o.value)')).toEqual(models[0]?.parameters.size?.values);
+    expect(inspect('inspector.fields.find(f => f.id === "quality").value')).toBe("high");
+    expect(inspect('inspector.fields.find(f => f.id === "model").options.map(o => o.action || null)')).toEqual([
+      "open-authorizations",
+      "open-authorizations",
+      "open-authorizations",
+      null,
+    ]);
+    expect(inspect('inspector.fields.find(f => f.id === "model").options.map(o => Boolean(o.disabled))')).toEqual([false, false, false, true]);
+    expect(inspect('update({model: models[2].id, prompt: "Kept draft", size: "1536x1024", quality: "high"})')).toMatchObject({ size: "2K", prompt: "Kept draft", style: "minimal" });
+    expect(inspect('actionArguments()')).not.toHaveProperty("quality");
+    expect(inspect('inspector.fields.some(f => f.id === "quality")')).toBe(false);
+    expect(inspect('inspector.fields.find(f => f.id === "size").options.map(o => o.value)')).toEqual(models[2]?.parameters.size?.values);
+    expect(() => inspect('update({size: "1024x1024", prompt: "Must not replace draft"})')).toThrow("not supported");
+    expect(inspect('state.prompt')).toBe("Kept draft");
+    expect(() => inspect('update({model: "missing"})')).toThrow();
+    expect(inspect('update({model: models[1].id, size: "3K"})')).toMatchObject({ size: "auto" });
+    expect(inspect('inspector.status.message')).toContain("不提供精确尺寸或质量控制");
+    expect(inspect('inspector.fields.find(f => f.id === "size").label')).toBe("期望画幅（提示词）");
+    expect(inspect('update({model: models[0].id})')).toMatchObject({ size: "auto", quality: "auto" });
+    for (const key of ["style", "camera", "lighting"]) {
+      const values: string[] = inspect(`inspector.fields.find(f => f.id === "${key}").options.map(o => o.value)`);
+      expect(values.length).toBeGreaterThanOrEqual(14);
+      expect(new Set(values).size).toBe(values.length);
+      expect(inspect(`inspector.fields.find(f => f.id === "${key}").live`)).toBe(true);
+    }
+    expect(inspect('update({style: "Chinese ink wash painting", camera: "overhead top-down view", lighting: "volumetric light rays"})')).toMatchObject({ style: "Chinese ink wash painting", camera: "overhead top-down view", lighting: "volumetric light rays" });
+    expect(() => inspect('update({selectionBlend: "unknown", prompt: "Invalid draft"})')).toThrow();
+    expect(inspect('state.prompt')).toBe("Kept draft");
+    inspect('state.mode = "edit"; state.selectionBlend = "natural";');
+    expect(inspect('update({selectionBlend: "strict"})')).not.toHaveProperty("selectionBlend"); // No selection: no blend parameter.
+    inspect('state.bounds = {left: 0.2, top: 0.2, right: 0.8, bottom: 0.8};');
+    expect(inspect('update({selectionBlend: "natural"})')).toMatchObject({ selectionBlend: "natural" });
+    expect(inspect('inspector')).toBeUndefined();
+    expect(inspect('update({selectionBlend: "strict"})')).toMatchObject({ selectionBlend: "strict" });
+  });
+
+  test("Image Studio confirms overwrite before sending and preserves the saved copy on failure", async () => {
+    const ui = await Bun.file(new URL("../../../examples/plugin-packages/image-studio/ui/image-studio.html", import.meta.url)).text();
+    const source = ui.match(/    async function saveEditedResult\(mode\) \{[\s\S]*?\n    \}/)?.[0];
+    expect(source).toBeDefined();
+    const calls: unknown[] = [];
+    const state = { busy: false, editResult: { editId: "receipt", originalPath: "original.png" }, confirmOverwrite: false };
+    const context = {
+      state, renderSaveReview: () => {}, tr: (key: string) => key,
+      setBusy: (value: boolean) => { state.busy = value; }, setStatus: () => {}, $: () => ({ focus: () => {} }),
+      renderImage: async () => {}, callService: async (action: string, args: unknown) => { calls.push({ action, args }); throw new Error("Source changed"); },
+    };
+    runInNewContext(`${source}; globalThis.save = saveEditedResult`, context);
+    await runInNewContext('save("overwrite")', context);
+    expect(calls).toHaveLength(0);
+    expect(state.confirmOverwrite).toBe(true);
+    await runInNewContext('save("overwrite")', context);
+    expect(calls).toEqual([{ action: "save-edit", args: { editId: "receipt", mode: "overwrite" } }]);
+    expect(state.busy).toBe(false);
+    expect(state.confirmOverwrite).toBe(false);
+    expect(state.editResult.editId).toBe("receipt");
+    await runInNewContext('save("copy")', context);
+    expect(calls).toHaveLength(2); // Save as needs no destructive confirmation.
+  });
+
+  test("accepts version 2 packages and rejects obsolete manifests", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+
+    const packaged = validatePluginPackageManifest(packageManifest);
+    const obsolete = validatePluginPackageManifest({
+      ...packageManifest,
+      schemaVersion: 1,
+    });
+
+    expect(packaged.success).toBe(true);
+    if (!packaged.success) throw new Error("Expected the package manifest to be valid");
+    expect(packaged.manifest.package?.version).toBe("1.2.3");
+    expect(packaged.manifest.resources.map((resource) => resource.type)).toEqual(["skill", "mcp"]);
+    expect(packaged.manifest.engineBindings?.[0]?.capabilities.map((capability) => capability.kind)).toEqual(["plugin"]);
+    expect(packaged.manifest.authorization?.methods.map((method) => method.kind)).toEqual(["secret-form"]);
+    expect(obsolete.success).toBe(false);
+    if (obsolete.success) throw new Error("Expected the obsolete manifest to be rejected");
+    expect(obsolete.issues).toContainEqual({ path: "schemaVersion", message: "Invalid input: expected 2" });
+  });
+
+  test("rejects engine-owned paths from portable resources", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const invalid = validatePluginPackageManifest({
+      ...packageManifest,
+      resources: [
+        { type: "skill", id: "legacy-skill", path: ".opencode/skills/legacy/SKILL.md" },
+        { type: "mcp", id: "legacy-mcp", path: ".opencode/mcps/legacy.json" },
+      ],
+      engineBindings: [{
+        engine: "opencode",
+        capabilities: [{ id: "legacy-runtime", kind: "plugin", path: ".opencode/plugins/legacy.ts" }],
+      }],
+    });
+
+    expect(invalid.success).toBe(false);
+    if (invalid.success) throw new Error("Expected engine-owned paths to be rejected");
+    expect(invalid.issues.map((issue) => issue.path)).toEqual([
+      "resources.0.path",
+      "resources.1.path",
+      "engineBindings.0.capabilities.0.path",
+    ]);
+  });
+
+  test("returns actionable issue paths for unsafe or malformed package metadata", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const invalid = {
+      ...packageManifest,
+      package: {
+        ...packageManifest.package,
+        version: "latest",
+        compatibility: { ipollowork: "eventually" },
+      },
+      engineBindings: [{ engine: "opencode", capabilities: [{ id: "runtime", kind: "plugin", path: "../outside.ts" }] }],
+      permissions: [{ id: "read-everything", reason: "Too broad" }],
+      authorization: {
+        required: true,
+        methods: [{
+          id: "api-key",
+          connectionId: "acme-research",
+          kind: "secret-form",
+          label: "API key",
+          envKey: "ACME_API_KEY",
+          fields: [],
+        }],
+      },
+      resources: [
+        packageManifest.resources[0],
+        { ...packageManifest.resources[0], path: "skills/duplicate/SKILL.md" },
+      ],
+    };
+
+    const result = validatePluginPackageManifest(invalid);
+
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected validation issues");
+    expect(result.issues.map((issue) => issue.path)).toEqual(expect.arrayContaining([
+      "package.version",
+      "package.compatibility.ipollowork",
+      "engineBindings.0.capabilities.0.path",
+      "permissions.0.id",
+      "authorization.methods.0.envKey",
+      "authorization.methods.0.fields",
+      "resources.1.id",
+    ]));
+  });
+
+  test("accepts a minimal package with no authorization", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const minimal = {
+      ...minimalManifest,
+      source: { format: "ipollowork-extension-manifest", origin: "local", trusted: false },
+      package: {
+        version: "0.1.1",
+        updateId: "local/minimal-plugin",
+      },
+      engineBindings: [{ engine: "opencode", capabilities: [{ id: "minimal-runtime", kind: "plugin", path: "engines/opencode/plugins/minimal.ts", required: true }] }],
+      resources: [],
+    };
+
+    const result = validatePluginPackageManifest(minimal);
+
+    expect(result.success).toBe(true);
+  });
+
+  test("accepts a declarative package made only of MCP and skill resources", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const declarative = {
+      ...minimalManifest,
+      id: "figma",
+      source: { format: "ipollowork-extension-manifest", origin: "local", trusted: false },
+      package: {
+        version: "2.0.16",
+        updateId: "figma/official-workflows",
+      },
+      resources: [
+        { type: "mcp", id: "figma-mcp", path: "mcp/figma.json", required: true },
+        {
+          type: "skill",
+          id: "figma-design-to-code",
+          path: "skills/figma-design-to-code/SKILL.md",
+          requires: ["resource:figma-mcp"],
+          required: true,
+        },
+      ],
+    };
+
+    expect(validatePluginPackageManifest(declarative).success).toBe(true);
+  });
+
+  test("rejects package identities reserved by built-in extension actions", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+
+    const result = validatePluginPackageManifest({ ...packageManifest, id: "storage" });
+
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected the built-in ID to be reserved");
+    expect(result.issues).toContainEqual({ path: "id", message: "is reserved by a built-in extension" });
+  });
+
+  test("validates declared relationships between skills, services, actions, and authorization", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const related = {
+      ...packageManifest,
+      package: {
+        ...packageManifest.package,
+      },
+      resources: [
+        {
+          type: "skill",
+          id: "research-workflow",
+          path: "skills/research/SKILL.md",
+          requires: ["service:research-service", "authorization:api-key"],
+          provides: ["workflow:research"],
+        },
+        {
+          type: "local-service",
+          id: "research-service",
+          path: "service/research.ts",
+          requires: ["authorization:api-key"],
+          provides: ["action:search"],
+          actions: [{ id: "search", title: "Search", description: "Search research." }],
+        },
+      ],
+    };
+
+    expect(validatePluginPackageManifest(related).success).toBe(true);
+    const invalid = validatePluginPackageManifest({
+      ...related,
+      resources: [
+        related.resources[0],
+        { ...related.resources[1], requires: ["authorization:missing"], provides: ["action:missing"] },
+      ],
+    });
+    expect(invalid.success).toBe(false);
+    if (invalid.success) throw new Error("Expected invalid dependency diagnostics");
+    expect(invalid.issues.map((issue) => issue.path)).toEqual(expect.arrayContaining([
+      "resources.1.requires.0",
+      "resources.1.provides.0",
+    ]));
+  });
+
+  test("keeps related skills outside the package-owned lifecycle", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const related = validatePluginPackageManifest({
+      ...packageManifest,
+      relatedSkills: ["hyperframes-cli", "media-use"],
+    });
+
+    expect(related.success).toBe(true);
+    if (!related.success) throw new Error(JSON.stringify(related.issues));
+    expect(related.manifest.relatedSkills).toEqual(["hyperframes-cli", "media-use"]);
+    expect(related.manifest.resources.map((resource) => resource.id)).not.toContain("hyperframes-cli");
+
+    const duplicate = validatePluginPackageManifest({
+      ...packageManifest,
+      relatedSkills: ["acme-search", "acme-search"],
+    });
+    expect(duplicate.success).toBe(false);
+    if (duplicate.success) throw new Error("Expected related skill diagnostics");
+    expect(duplicate.issues.map((issue) => issue.path)).toEqual(expect.arrayContaining([
+      "relatedSkills.0",
+      "relatedSkills.1",
+    ]));
+  });
+
+  test("accepts standard MCP App UI resources and rejects incomplete UI declarations", async () => {
+    const { validatePluginPackageManifest } = await import("./plugin-package-manifest.js");
+    const manifest = await Bun.file(new URL("../../../examples/plugin-packages/workspace-canvas/ipollowork.plugin.json", import.meta.url)).json();
+
+    const result = validatePluginPackageManifest(manifest);
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error(JSON.stringify(result.issues));
+    expect(result.manifest.resources[0]).toMatchObject({
+      type: "ui",
+      path: "ui/canvas.html",
+      ui: { uri: "ui://workspace-canvas/canvas", mimeType: "text/html;profile=mcp-app" },
+    });
+    expect(result.manifest.contributions?.map((contribution) => contribution.type)).toEqual([
+      "workspace-app",
+      "settings-page",
+      "conversation-template",
+    ]);
+
+    const invalid = validatePluginPackageManifest({
+      ...manifest,
+      resources: [{ type: "ui", id: "canvas", path: "ui/canvas.js" }],
+    });
+    expect(invalid.success).toBe(false);
+    if (invalid.success) throw new Error("Expected incomplete UI metadata to be rejected");
+    expect(invalid.issues.map((issue) => issue.path)).toEqual(expect.arrayContaining([
+      "resources.0.path",
+      "resources.0.ui",
+    ]));
+
+    const undeclaredNetwork = validatePluginPackageManifest({
+      ...manifest,
+      resources: [{
+        ...manifest.resources[0],
+        ui: {
+          ...manifest.resources[0].ui,
+          csp: { connectDomains: ["https://api.example.com"] },
+        },
+      }],
+    });
+    expect(undeclaredNetwork.success).toBe(false);
+    if (undeclaredNetwork.success) throw new Error("Expected undeclared UI network access to be rejected");
+    expect(undeclaredNetwork.issues).toContainEqual({
+      path: "resources.0.ui.csp",
+      message: "requires the network package permission",
+    });
+  });
+});

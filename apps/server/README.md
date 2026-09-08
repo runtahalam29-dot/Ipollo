@@ -1,0 +1,159 @@
+# iPolloWork Server
+
+Filesystem-backed API for iPolloWork remote clients. This package provides the iPolloWork server layer described in `apps/app/pr/ipollowork-server.md` and is intentionally independent from the desktop app.
+
+## Quick start
+
+```bash
+npm install -g ipollowork-server
+ipollowork-server --workspace /path/to/workspace --approval auto
+```
+
+`ipollowork-server` ships as a compiled binary, so Bun is not required at runtime.
+
+Exact selected-region image editing requires the native `sharp` processor. Use the desktop app or the Node-based server (`node dist/cli.js`) with optional dependencies enabled for this feature. The standalone Bun executable currently cannot load this processor: it still starts normally, but selected-image editing fails explicitly with `image_processor_unavailable` before contacting a model. Desktop builds include and unpack the native dependencies.
+
+The implementation reuses the repository's already locked `sharp` 0.34.5 (Apache-2.0) for PNG/JPEG/WebP decoding and pixel composition instead of maintaining custom codecs. It adds platform-specific native binaries to the server/desktop installation, is loaded only for selected edits, and bounds input bytes and decoded pixels before processing.
+
+Or from source:
+
+```bash
+pnpm --filter ipollowork-server dev -- \
+  --workspace /path/to/workspace \
+  --approval auto
+```
+
+The server logs the client token and host token on boot when they are auto-generated.
+
+Add `--verbose` to print resolved config details on startup. Use `--version` to print the server version and exit.
+
+## Config file
+
+Defaults to `~/.config/ipollowork/server.json` (override with `IPOLLOWORK_SERVER_CONFIG` or `--config`).
+
+```json
+{
+  "host": "127.0.0.1",
+  "port": 8787,
+  "approval": { "mode": "manual", "timeoutMs": 30000 },
+  "workspaces": [
+    {
+      "path": "/Users/susan/Finance",
+      "name": "Finance",
+      "workspaceType": "local",
+      "baseUrl": "http://127.0.0.1:4096",
+      "directory": "/Users/susan/Finance"
+    }
+  ],
+  "corsOrigins": ["http://localhost:5173"]
+}
+```
+
+## Environment variables
+
+- `IPOLLOWORK_SERVER_CONFIG` path to config JSON
+- `IPOLLOWORK_HOST` / `IPOLLOWORK_PORT`
+- `IPOLLOWORK_TOKEN` client bearer token
+- `IPOLLOWORK_HOST_TOKEN` host approval token
+- `IPOLLOWORK_APPROVAL_MODE` (`manual` | `auto`)
+- `IPOLLOWORK_APPROVAL_TIMEOUT_MS`
+- `IPOLLOWORK_WORKSPACES` (JSON array or comma-separated list of paths)
+- `IPOLLOWORK_CORS_ORIGINS` (comma-separated list or `*`)
+- `IPOLLOWORK_OPENCODE_BASE_URL`
+- `IPOLLOWORK_OPENCODE_DIRECTORY`
+- `IPOLLOWORK_OPENCODE_USERNAME`
+- `IPOLLOWORK_OPENCODE_PASSWORD`
+
+Token management (scoped tokens):
+
+- `IPOLLOWORK_TOKEN_STORE` path to token store JSON (default: alongside `server.json`)
+
+File injection / artifacts:
+
+- `IPOLLOWORK_INBOX_ENABLED` (`1` | `0`)
+- `IPOLLOWORK_INBOX_MAX_BYTES` (default: 50MB, capped)
+- `IPOLLOWORK_OUTBOX_ENABLED` (`1` | `0`)
+
+Sandbox advertisement (for capability discovery):
+
+- `IPOLLOWORK_SANDBOX_ENABLED` (`1` | `0`)
+- `IPOLLOWORK_SANDBOX_BACKEND` (`docker` | `container` | `none`)
+
+## Endpoints
+
+- `GET /health`
+- `GET /status`
+- `GET /capabilities`
+- `GET /whoami`
+- `GET /workspaces`
+- `GET /workspace/:id/config`
+- `PATCH /workspace/:id/config`
+- `GET /workspace/:id/events`
+- `POST /workspace/:id/engine/reload`
+- `GET /w/:id/capabilities` (includes engine-specific session write support)
+- `GET /workspace/:id/skills`
+- `POST /workspace/:id/skills`
+- `GET /workspace/:id/mcp`
+- `POST /workspace/:id/mcp`
+- `DELETE /workspace/:id/mcp/:name`
+- `GET /workspace/:id/commands`
+- `POST /workspace/:id/commands`
+- `DELETE /workspace/:id/commands/:name`
+- `GET /workspace/:id/audit`
+- `GET /workspace/:id/export`
+- `POST /workspace/:id/import/preview`
+- `POST /workspace/:id/import`
+
+Sessions (the same API works for OpenCode and DeepSeek Harness workspaces):
+
+- `GET /workspace/:id/sessions`
+- `POST /workspace/:id/sessions` (body: `{ "title"?: string }`)
+- `GET /workspace/:id/sessions/:sessionId/messages`
+- `POST /workspace/:id/sessions/:sessionId/prompt` (body: `{ "text": string, "model"?: { "providerID": string, "modelID": string }, "mode"?: string, "reasoningEffort"?: string, "clientTimeZone"?: string }`)
+
+Token management (host/owner auth):
+
+- `GET /tokens`
+- `POST /tokens` (body: `{ "scope": "owner"|"collaborator"|"viewer", "label"?: string }`)
+- `DELETE /tokens/:id`
+
+Inbox/outbox:
+
+- `POST /workspace/:id/inbox` (multipart upload into `.opencode/ipollowork/inbox/`)
+- `GET /workspace/:id/artifacts`
+- `GET /workspace/:id/artifacts/:artifactId`
+- `POST /workspace/:id/files/sessions`
+- `POST /files/sessions/:sessionId/renew`
+- `DELETE /files/sessions/:sessionId`
+- `GET /files/sessions/:sessionId/catalog/snapshot`
+- `GET /files/sessions/:sessionId/catalog/events`
+- `POST /files/sessions/:sessionId/read-batch`
+- `POST /files/sessions/:sessionId/write-batch`
+- `POST /files/sessions/:sessionId/ops`
+
+Toy UI (static assets served by the server):
+
+- `GET /ui`
+- `GET /w/:id/ui`
+- `GET /ui/assets/*`
+
+OpenCode proxy:
+
+- `GET|POST|... /opencode/*`
+- `GET|POST|... /w/:id/opencode/*`
+
+## Approvals
+
+All writes are gated by host approval.
+
+Host APIs accept either:
+
+- `X-iPolloWork-Host-Token: <token>` (legacy host token), or
+- `Authorization: Bearer <token>` where the token scope is `owner`.
+
+Approvals endpoints:
+
+- `GET /approvals`
+- `POST /approvals/:id` with `{ "reply": "allow" | "deny" }`
+
+Set `IPOLLOWORK_APPROVAL_MODE=auto` to auto-approve during local development.

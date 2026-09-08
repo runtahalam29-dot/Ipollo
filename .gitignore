@@ -1,0 +1,83 @@
+.turbo/
+node_modules/
+apps/desktop/dist-electron/
+apps/desktop/dist-engine-packs/
+apps/desktop/dist-electron-windows-0.17.34-20260728101109/
+
+
+packages/*/node_modules/
+apps/*/node_modules/
+.next/
+out/
+dist/
+coverage/
+packages/*/dist/
+apps/*/dist/
+tmp/
+
+# Local git worktrees
+_worktrees/
+.worktrees/
+
+# Desktop sidecars
+apps/desktop/resources/sidecars/
+apps/desktop/server/
+apps/desktop/.hyperframes-build-stamp.json
+apps/desktop/dist-electron-test-filter/
+apps/desktop/hyperframes-runtime/
+apps/desktop/dsh-runtime/node-runtime/
+apps/desktop/video/
+# Runtime video-session projects created by the desktop app.
+/video/
+
+# Env
+.env
+.env.*
+!.env.example
+# Committed local-dev defaults (throwaway secrets) loaded by scripts/dev-local.mjs.
+!.env.dev
+# The migration-release fragment is committed only on the tagged
+# migration-release commit and removed by 03-post-migration-cleanup.mjs.
+# Allow git to see it so `cut-migration-release` can commit it.
+!.env.migration-release
+
+# Bun build artifacts
+*.bun-build
+apps/server/cli
+
+# pnpm store (created by Docker volume mounts)
+.pnpm-store/
+
+# Docker dev workspace (ephemeral mount point)
+packaging/docker/workspace/
+
+# OS
+.DS_Store
+
+# OpenCode mirror
+vendor/opencode/
+
+# OpenCode local deps
+.opencode/node_modules/
+.opencode/bun.lock
+
+# iPolloWork workspace-local artifacts
+.opencode/ipollowork/
+.opencode/agents/ipollowork.md
+.opencode/ipollowork.json
+opencode.jsonc
+.vercel
+.env*.local
+.claude/*
+.security
+transcript-analysis
+# Eval runner output
+evals/results/
+.playwright-mcp/
+.vscode/
+.ipollowork-dev/
+/design/
+/nba-story/
+.superpowers/
+# Local design-system experiments; keep out of commits for now.
+# /apps/app/src/react-app/domains/session/design/design-systems/

@@ -1,0 +1,1251 @@
+{
+  "$schema": "https://hyperframes.heygen.com/schema/registry.json",
+  "name": "hyperframes",
+  "homepage": "https://hyperframes.heygen.com",
+  "items": [
+    {
+      "name": "warm-grain",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "play-mode",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "swiss-grid",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "vignelli",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "decision-tree",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "kinetic-type",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "product-promo",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "nyt-graph",
+      "type": "hyperframes:example"
+    },
+    {
+      "name": "data-chart",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "animated-bar-chart",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "bar-chart-race",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "conic-progress-ring",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "decline-chart",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "logo-wall",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "number-wheel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "oscilloscope-trace",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "star-rating-fill",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "us-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "us-map-bubble",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "us-map-hex",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "us-map-flow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "world-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "china-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "route-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "chart-story",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "brand-headline",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "feature-grid",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "metric-signal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "architecture-hub",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "decision-flow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "milestone-timeline",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "before-after-contrast",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "learning-pyramid",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "profile-quote",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "evidence-stack",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "brand-cta",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "map-flow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "location-pulse-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "metro-network-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "territory-heat-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "spain-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "flowchart",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "logo-outro",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "grain-overlay",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "shimmer-sweep",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "grid-pixelate-wipe",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "motion-blur",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "texture-mask-text",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "vignette",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "caption-pill-karaoke",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "caption-editorial-emphasis",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "morph-text",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "instagram-follow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "tiktok-follow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "yt-lower-third",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "news-ticker",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-accent-underline",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-bold-block",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-clean-bar",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "chapter-divider",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "bullet-stack",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "pull-quote",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "media-hero",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "split-screen",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "device-mockup",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "browser-walkthrough",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "mobile-walkthrough",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ranking-list",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "podium-ranking",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "live-leaderboard",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "medal-table",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "comparison-matrix",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "kpi-dashboard",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "social-post",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "comment-thread",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "follow-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "instagram-post",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "instagram-story",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "instagram-reel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "instagram-carousel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "x-status-post",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "x-thread",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "x-poll",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "x-space",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "douyin-video",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "douyin-product-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "douyin-live-room",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "douyin-comment-stack",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "xiaohongshu-note",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "xiaohongshu-cover",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "xiaohongshu-checklist",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "xiaohongshu-review",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-walkthrough",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-diff-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "terminal-run",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "product-spotlight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "pricing-plans",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "offer-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "logo-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "brand-palette",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "campaign-lockup",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "question-opener",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "product-steps",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "process-cycle",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "project-roadmap",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "definition-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "team-grid",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "testimonial-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "end-screen",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-color-block",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-dark-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-kicker-name",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-mask-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-side-rule",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-soft-pill",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lt-stack-bars",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "lower-third-bild",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "x-post",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "reddit-post",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "spotify-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "macos-notification",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "app-showcase",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "north-korea-locked-down",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "apple-money-count",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vpn-youtube-spot",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "blue-sweater-intro-video",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "nyc-paris-flight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ui-3d-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "domain-warp-dissolve",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ridged-burn",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "whip-pan",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "sdf-iris",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ripple-waves",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gravitational-lens",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "cinematic-zoom",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "chromatic-radial-split",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "glitch",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "swirl-vortex",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "thermal-distortion",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "flash-through-white",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "cross-warp-morph",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "light-leak",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-3d",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-blur",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-cover",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-destruction",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-dissolve",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-distortion",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-grid",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-light",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-mechanical",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-other",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-push",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-radial",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transitions-scale",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-text-cursor",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-liquid-background",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-iphone-device",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-magnetic",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-portal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "liquid-glass-notification",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "liquid-glass-context-menu",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "liquid-glass-media-controls",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "liquid-glass-widgets",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ios26-liquid-glass",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "macos-tahoe-liquid-glass",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-shatter",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-basic",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-clear-dark",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-clear-light",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-grass",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-homebrew",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-man-page",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-novel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-ocean",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-pro",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-red-sands",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-silver-aerogel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-apple-terminal-solid-colors",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-dark-2026",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-dark-modern",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-dark-plus",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-high-contrast",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-high-contrast-light",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-light-2026",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-light-modern",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-light-plus",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-monokai",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-solarized-light",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-visual-studio-dark",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-visual-studio-light",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-morph",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-snippet-flight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-typing",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-diff",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-highlight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-scroll",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-3d-extrude",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-shader-dissolve",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-particle-assemble",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "flowchart-vertical",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "vfx-liquid-glass",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "parallax-zoom",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "parallax-unzoom",
+      "type": "hyperframes:component"
+    },
+    {
+      "name": "gsap-scrolltrigger-story",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-splittext-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-morphsvg-shape",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-scroll-smoother-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-scroll-to-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-scramble-text-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-text-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-draw-svg-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-motion-path-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-motion-path-helper-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-flip-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-draggable-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-inertia-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-observer-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-physics-2d-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-physics-props-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-gs-dev-tools-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-easel-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-pixi-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-rough-ease-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-expo-scale-ease-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-slow-mo-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-custom-ease-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-custom-bounce-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gsap-custom-wiggle-official",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "opening-signal-assembly",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "opening-editorial-rise",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "opening-orbit-lockup",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "opening-prism-sweep",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ending-brand-lockup",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ending-iris-collapse",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ending-slide-resolve",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "ending-signal-dissolve",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transition-split-wipe",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transition-depth-push",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transition-lens-focus",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "transition-diagonal-slice",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "caption-phrase-lift",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "caption-word-pulse",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "caption-mask-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "caption-editorial-snap",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "agenda-opener",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "feature-spotlight-stack",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "donut-breakdown",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "swimlane-workflow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "case-study-result",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "concept-layers",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "speaker-intro",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "kinetic-keyword",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "screenshot-zoom",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "creator-profile-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "agent-tool-trace",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "brand-manifesto",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "narrative-hook",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "product-benefit-orbit",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "gauge-scorecard",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "feedback-loop",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "benchmark-scorecard",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "cause-effect-chain",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "expert-panel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "editorial-number",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "browser-feature-tour",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "social-comment-highlight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "api-request-flow",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "campaign-metric-hero",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "chapter-countdown",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "workflow-demo-cards",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "waterfall-impact",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "dependency-graph",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "source-citation-card",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "myth-fact-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "team-spotlight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "definition-highlight",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "device-carousel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "social-metrics-pulse",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "code-file-tree",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "offer-countdown",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "summary-resolve",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "release-highlights",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "sparkline-grid",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "decision-branch-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "customer-quote-wall",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "faq-stack",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "founder-story",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "checklist-reveal",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "picture-in-picture",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "terminal-command-sequence",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "partner-logo-feature",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "integration-showcase",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "next-step-outro",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "product-comparison-stage",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "cohort-retention",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "sequence-diagram",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "validation-stamp",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "formula-breakdown",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "process-handoff-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "quote-pullout",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "media-before-after",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "deployment-pipeline",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "brand-system-board",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "anomaly-monitor",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "feature-adoption-ladder",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "conversion-funnel",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "capability-map",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "learning-path",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "section-marker",
+      "type": "hyperframes:block"
+    },
+    {
+      "name": "interface-state-board",
+      "type": "hyperframes:block"
+    }
+  ]
+}
