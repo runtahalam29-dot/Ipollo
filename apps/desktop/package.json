@@ -30,24 +30,24 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@ffprobe-installer/ffprobe": "^2.1.2",
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "@opencode-ai/sdk": "^1.18.16",
-    "better-sqlite3": "^11.10.0",
-    "drizzle-orm": "^0.45.1",
-    "electron-updater": "^6.3.9",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@opencode-ai/sdk": "^1.19.2",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.4",
+    "electron-updater": "^6.8.9",
     "jsonc-parser": "^3.2.1",
-    "minimatch": "^10.0.1",
+    "minimatch": "^10.2.6",
     "node-pty": "npm:@lydell/node-pty@1.2.0-beta.12",
-    "oauth4webapi": "^3.8.7",
-    "sharp": "0.34.5",
-    "yaml": "^2.6.1",
-    "zod": "^4.3.6"
+    "oauth4webapi": "^3.8.8",
+    "sharp": "0.35.5",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@electron/asar": "^3.4.1",
+    "@electron/asar": "^4.3.1",
     "@ipollowork/types": "workspace:*",
-    "@opencode-ai/plugin": "1.18.16",
-    "electron": "^35.0.0",
+    "@opencode-ai/plugin": "1.19.2",
+    "electron": "^44.8.0",
     "electron-builder": "^25.1.8"
   }
 }
