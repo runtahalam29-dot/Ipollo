@@ -40,8 +40,8 @@
     "@types/bun": "^1.1.0",
     "gsap": "^3.12.5",
     "puppeteer-core": "^25.2.1",
-    "tsup": "^8.0.0",
+    "tsup": "^9.0.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^5.1.1"
   }
 }
